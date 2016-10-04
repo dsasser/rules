@@ -38,7 +38,18 @@ class RulesLoop extends ActionExpressionContainer {
 
     foreach ($list_data as $item) {
       $state->setVariableData($list_item_name, $item);
+
+      // Get hold of actions.
+      // @todo See if we can add getExpressions method of ExpressionContainerBase.
+      $actions = [];
       foreach ($this->actions as $action) {
+        $actions[] = $action;
+      }
+
+      // Sort actions by weight.
+      @uasort($actions, [$this->actions, 'expressionSortHelper']);
+      foreach ($actions as $action) {
+        /* @var $action \Drupal\rules\Engine\ExpressionInterface */
         $action->executeWithState($state);
       }
     }

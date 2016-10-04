@@ -7,6 +7,9 @@ rules_expression:
   uuid:
     type: string
     label: 'UUID'
+  weight:
+    type: integer
+    label: 'Weight'
 
 rules_expression.rules_condition:
   type: rules_expression
@@ -18,6 +21,9 @@ rules_expression.rules_condition:
     uuid:
       type: string
       label: 'UUID'
+    weight:
+      type: integer
+      label: 'Weight'
     condition_id:
       type: string
       label: 'Condition plugin ID'
@@ -47,6 +53,9 @@ rules_expression.rules_action:
     uuid:
       type: string
       label: 'UUID'
+    weight:
+      type: integer
+      label: 'Weight'
     action_id:
       type: string
       label: 'Action plugin ID'
@@ -73,6 +82,9 @@ rules_expression.rules_and:
     uuid:
       type: string
       label: 'UUID'
+    weight:
+      type: integer
+      label: 'Weight'
     negate:
       type: boolean
       label: 'Negate'
@@ -92,6 +104,9 @@ rules_expression.rules_action_set:
     uuid:
       type: string
       label: 'UUID'
+    weight:
+      type: integer
+      label: 'Weight'
     actions:
       type: sequence
       label: 'Actions'
@@ -108,6 +123,9 @@ rules_expression.rules_rule:
     uuid:
       type: string
       label: 'UUID'
+    weight:
+      type: integer
+      label: 'Weight'
     conditions:
       type: rules_expression.[id]
       label: 'Conditions'

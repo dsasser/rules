@@ -19,7 +19,17 @@ class RulesOr extends ConditionExpressionContainer {
    * {@inheritdoc}
    */
   public function evaluate(ExecutionStateInterface $state) {
+    // Get hold of conditions.
+    // @todo See if we can add getExpressions method of ExpressionContainerBase.
+    $conditions = [];
     foreach ($this->conditions as $condition) {
+      $conditions[] = $condition;
+    }
+
+    // Sort conditions by weight.
+    @uasort($conditions, [$this->conditions, 'expressionSortHelper']);
+    foreach ($conditions as $condition) {
+      /* @var $condition \Drupal\rules\Engine\ExpressionInterface */
       if ($condition->executeWithState($state)) {
         return TRUE;
       }

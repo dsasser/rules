@@ -80,6 +80,37 @@ interface ExpressionInterface extends ExecutableInterface, ConfigurablePluginInt
   public function setUuid($uuid);
 
   /**
+   * Returns the weight of this expression.
+   *
+   * @return int
+   *   The weight of this expression.
+   */
+  public function getWeight();
+
+  /**
+   * Sets the weight of this expression in an expression tree.
+   *
+   * @param int $weight
+   *   The weight to set.
+   */
+  public function setWeight($weight);
+
+  /**
+   * Sorts an array of expressions by 'weight' property.
+   *
+   * Callback for uasort().
+   *
+   * @param \Drupal\rules\Engine\ExpressionInterface $a
+   *   First item for comparison.
+   * @param \Drupal\rules\Engine\ExpressionInterface $b
+   *   Second item for comparison.
+   *
+   * @return int
+   *   The comparison result for uasort().
+   */
+  public function expressionSortHelper(ExpressionInterface $a, ExpressionInterface $b);
+
+  /**
    * Verifies that this expression is configured correctly.
    *
    * Example: All configured data selectors must be valid.

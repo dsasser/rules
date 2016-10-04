@@ -39,31 +39,75 @@ class ActionContainerForm implements ExpressionFormInterface {
     ];
 
     $form['action_table']['table'] = [
-      '#theme' => 'table',
-      '#caption' => $this->t('Actions'),
-      '#header' => [$this->t('Elements'), $this->t('Operations')],
-      '#empty' => t('None'),
+      '#type' => 'table',
+      '#header' => [
+        $this->t('Elements'),
+        $this->t('Weight'),
+        [
+          'data' => $this->t('Operations'),
+          'colspan' => 3,
+        ],
+      ],
+      '#attributes' => [
+        'id' => 'rules_actions_table',
+      ],
+      '#tabledrag' => [
+        [
+          'action' => 'order',
+          'relationship' => 'sibling',
+          'group' => 'action-weight',
+        ],
+      ],
     ];
 
+    $form['action_table']['table']['#empty'] = $this->t('None');
+
+    // Get hold of actions.
+    // @todo See if we can add getExpressions method of ExpressionContainerBase.
+    $actions = [];
     foreach ($this->actionSet as $action) {
-      $form['action_table']['table']['#rows'][] = [
-        'element' => $action->getLabel(),
-        'operations' => [
-          'data' => [
-            '#type' => 'dropbutton',
-            '#links' => [
-              'edit' => [
-                'title' => $this->t('Edit'),
-                'url' => $this->getRulesUiHandler()->getUrlFromRoute('expression.edit', [
-                  'uuid' => $action->getUuid(),
-                ]),
-              ],
-              'delete' => [
-                'title' => $this->t('Delete'),
-                'url' => $this->getRulesUiHandler()->getUrlFromRoute('expression.delete', [
-                  'uuid' => $action->getUuid(),
-                ]),
-              ],
+      $actions[] = $action;
+    }
+
+    // Sort actions by weight.
+    @uasort($actions, [$this->actionSet, 'expressionSortHelper']);
+
+    foreach ($actions as $action) {
+      /* @var $action \Drupal\rules\Engine\ExpressionInterface */
+      $uuid = $action->getUuid();
+      $row = &$form['action_table']['table'][$uuid];
+
+      // TableDrag: Mark the table row as draggable.
+      $row['#attributes']['class'][] = 'draggable';
+
+      // TableDrag: Sort the table row according to its existing weight.
+      $row['#weight'] = $action->getWeight();
+      $row['title'] = ['#markup' => $action->getLabel()];
+
+      $row['weight'] = [
+        '#type' => 'weight',
+        '#delta' => 50,
+        '#default_value' => $action->getWeight(),
+        '#attributes' => ['class' => ['action-weight']],
+      ];
+
+      // Operations (dropbutton) column.
+      $rules_ui_handler = $this->getRulesUiHandler();
+      $row['operations'] = [
+        'data' => [
+          '#type' => 'dropbutton',
+          '#links' => [
+            'edit' => [
+              'title' => $this->t('Edit'),
+              'url' => $rules_ui_handler->getUrlFromRoute('expression.edit', [
+                'uuid' => $uuid,
+              ]),
+            ],
+            'delete' => [
+              'title' => $this->t('Delete'),
+              'url' => $rules_ui_handler->getUrlFromRoute('expression.delete', [
+                'uuid' => $uuid,
+              ]),
             ],
           ],
         ],
@@ -83,6 +127,26 @@ class ActionContainerForm implements ExpressionFormInterface {
     ];
 
     return $form;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function submitForm(array &$form, FormStateInterface $form_state) {
+    $values = $form_state->getValue('table');
+    $component = $this->getRulesUiHandler()->getComponent();
+    /* @var $rule_expression \Drupal\rules\Plugin\RulesExpression\Rule */
+    $rule_expression = $component->getExpression();
+
+    if ($values) {
+      foreach ($values as $uuid => $expression) {
+        $action = $rule_expression->getExpression($uuid);
+        $action->setWeight($expression['weight']);
+        $action->setConfiguration($action->getConfiguration());
+      }
+    }
+
+    $this->getRulesUiHandler()->updateComponent($component);
   }
 
 }
