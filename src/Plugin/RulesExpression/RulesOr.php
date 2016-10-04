@@ -10,7 +10,8 @@ use Drupal\rules\Engine\ExecutionStateInterface;
  *
  * @RulesExpression(
  *   id = "rules_or",
- *   label = @Translation("Condition set (OR)")
+ *   label = @Translation("Condition set (OR)"),
+ *   form_class = "\Drupal\rules\Form\Expression\ConditionContainerForm"
  * )
  */
 class RulesOr extends ConditionExpressionContainer {

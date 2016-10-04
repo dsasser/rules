@@ -34,11 +34,11 @@ class ActionContainerForm implements ExpressionFormInterface {
    * {@inheritdoc}
    */
   public function form(array $form, FormStateInterface $form_state) {
-    $form['action_table'] = [
+    $form['action_table_container'] = [
       '#type' => 'container',
     ];
 
-    $form['action_table']['table'] = [
+    $form['action_table_container']['action_table'] = [
       '#type' => 'table',
       '#header' => [
         $this->t('Elements'),
@@ -75,7 +75,7 @@ class ActionContainerForm implements ExpressionFormInterface {
     foreach ($actions as $action) {
       /* @var $action \Drupal\rules\Engine\ExpressionInterface */
       $uuid = $action->getUuid();
-      $row = &$form['action_table']['table'][$uuid];
+      $row = &$form['action_table_container']['action_table'][$uuid];
 
       // TableDrag: Mark the table row as draggable.
       $row['#attributes']['class'][] = 'draggable';
@@ -133,7 +133,7 @@ class ActionContainerForm implements ExpressionFormInterface {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $values = $form_state->getValue('table');
+    $values = $form_state->getValue('action_table');
     $component = $this->getRulesUiHandler()->getComponent();
     /* @var $rule_expression \Drupal\rules\Plugin\RulesExpression\Rule */
     $rule_expression = $component->getExpression();

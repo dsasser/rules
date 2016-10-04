@@ -67,7 +67,7 @@ class EditExpressionForm extends FormBase {
       throw new NotFoundHttpException();
     }
     $form_handler = $expression->getFormHandler();
-    $form = $form_handler->form($form, $form_state);
+    $form = $form_handler->form($form, $form_state, ['init' => TRUE]);
     return $form;
   }
 
