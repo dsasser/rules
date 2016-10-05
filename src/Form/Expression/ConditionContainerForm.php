@@ -46,6 +46,14 @@ class ConditionContainerForm implements ExpressionFormInterface {
   protected $ruleExpression;
 
   /**
+   * The expression plugin manager service.
+   *
+   * @var \Drupal\rules\Engine\ExpressionManager
+   */
+  protected $expressionManager;
+
+
+  /**
    * Creates a new object of this class.
    */
   public function __construct(ConditionExpressionContainerInterface $condition_container) {
@@ -53,6 +61,7 @@ class ConditionContainerForm implements ExpressionFormInterface {
     $this->rulesUiHandler = $this->getRulesUiHandler();
     $this->component = $this->rulesUiHandler->getComponent();
     $this->ruleExpression = $this->component->getExpression();
+    $this->expressionManager = \Drupal::service('plugin.manager.rules_expression');
   }
 
   /**
@@ -67,12 +76,12 @@ class ConditionContainerForm implements ExpressionFormInterface {
         '#type' => 'container',
         '#id' => 'rules-plugin-add-help',
         'content' => array(
-          '#markup' => t('You are about to add a new @plugin to the @config-plugin %label. Use indentation to make conditions a part of this logic group. See <a href="@url">the online documentation</a> for more information on condition sets.',
+          '#markup' => t('You are about to add a new @plugin to the @config-plugin %label. Use indentation to make conditions a part of this logic group. See <a href=":url">the online documentation</a> for more information on condition sets.',
             array(
               '@plugin' => $this->conditionContainer->getLabel(),
               '@config-plugin' => $config->bundle(),
               '%label' => $config->label(),
-              '@url' => 'http://drupal.org/node/1300034',
+              ':url' => 'http://drupal.org/node/1300034',
             )
           ),
         ),
@@ -177,11 +186,11 @@ class ConditionContainerForm implements ExpressionFormInterface {
       '#attributes' => ['class' => ['condition-weight']],
     ];
 
-    // Operations (dropbutton) column.
+    // Operations column.
     $rules_ui_handler = $this->getRulesUiHandler();
     $row['operations'] = [
       'data' => [
-        '#type' => 'dropbutton',
+        '#type' => 'operations',
         '#links' => [
           'edit' => [
             'title' => $this->t('Edit'),
@@ -313,7 +322,7 @@ class ConditionContainerForm implements ExpressionFormInterface {
    *   The id key in the values.
    *
    * @return mixed
-   *   A heirarchical tree of values.
+   *   A hierarchical tree of values.
    */
   private function buildElementTree($values, &$elements, $pidKey, $idKey = NULL) {
     $grouped = array();
@@ -352,13 +361,12 @@ class ConditionContainerForm implements ExpressionFormInterface {
    */
   private function mirrorElements($values) {
     $elements = NULL;
-    $expressionManager = \Drupal::service('plugin.manager.rules_expression');
     foreach ($values as $uuid => $element) {
       $condition = $this->ruleExpression->getExpression($element['id']);
       $configuration = $condition->getConfiguration();
       unset($configuration['uuid']);
       $configuration['weight'] = $element['weight'];
-      $elements[$uuid] = $expressionManager->createInstance($condition->getPluginId(), $configuration);
+      $elements[$uuid] = $this->expressionManager->createInstance($condition->getPluginId(), $configuration);
     }
 
     return $elements;

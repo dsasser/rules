@@ -91,11 +91,11 @@ class ActionContainerForm implements ExpressionFormInterface {
         '#attributes' => ['class' => ['action-weight']],
       ];
 
-      // Operations (dropbutton) column.
+      // Operations column.
       $rules_ui_handler = $this->getRulesUiHandler();
       $row['operations'] = [
         'data' => [
-          '#type' => 'dropbutton',
+          '#type' => 'operations',
           '#links' => [
             'edit' => [
               'title' => $this->t('Edit'),
