@@ -5,6 +5,7 @@ namespace Drupal\rules\Plugin\Condition;
 use Drupal\rules\Core\RulesConditionBase;
 use Drupal\rules\Exception\InvalidArgumentException;
 use Drupal\user\UserInterface;
+use Drupal\user\Entity\Role;
 
 /**
  * Provides a 'User has roles(s)' condition.
@@ -52,6 +53,26 @@ class UserHasRole extends RulesConditionBase {
   protected function doEvaluate(UserInterface $account, array $roles, $operation = 'AND') {
 
     $rids = array_map(function ($role) {
+      static $drupal_roles;
+      if (!$drupal_roles) {
+        $drupal_roles = Role::loadMultiple();
+      }
+      // If the role is not a role entity yet, load it if we can.
+      if (!$role instanceof Role) {
+        // Try to load the role by role id.
+        if ($r = Role::load(strtolower($role))) {
+          $role = $r;
+        }
+        else {
+          // Try to load the role by role label.
+          foreach ($drupal_roles as $drupal_role) {
+            if ($drupal_role->get('label') == $role) {
+              $role = $drupal_role;
+              break;
+            }
+          }
+        }
+      }
       return $role->id();
     }, $roles);
 
