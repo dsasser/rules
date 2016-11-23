@@ -72,6 +72,8 @@ class RulesComponentEditForm extends RulesComponentFormBase {
    */
   public function save(array $form, FormStateInterface $form_state) {
     $this->rulesUiHandler->getForm()->submitForm($form, $form_state);
+    $component = $this->rulesUiHandler->getComponent();
+    $this->entity->updateFromComponent($component);
 
     // Persist changes by saving the entity.
     parent::save($form, $form_state);
