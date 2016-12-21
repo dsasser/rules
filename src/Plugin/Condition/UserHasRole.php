@@ -66,7 +66,7 @@ class UserHasRole extends RulesConditionBase {
         else {
           // Try to load the role by role label.
           foreach ($drupal_roles as $drupal_role) {
-            if ($drupal_role->get('label') == $role) {
+            if ($drupal_role->get('label') == trim($role)) {
               $role = $drupal_role;
               break;
             }
